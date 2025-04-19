@@ -1,15 +1,18 @@
-public class GameEnd
+namespace HeroQuestGame
 {
-    public static void CheckWinningConditions(Hero hero, int currentRoom, int exitRoom, Exploration exploration)
+    public class GameEnd
     {
-        if (hero.Health > 0 && currentRoom == exitRoom)
+        public static void CheckWinningConditions(Hero hero, int currentRoom, int exitRoom, Exploration exploration)
         {
-            Console.WriteLine("You win! You've reached the exit with health remaining.");
-        }
-        else if (hero.Health <= 0)
-        {
-            Console.WriteLine("You lost! Your health reached 0.");
-            exploration.DisplayVisitedRooms();
+            if (hero.Health > 0 && currentRoom == exitRoom)
+            {
+                Console.WriteLine("You win! You've reached the exit with health remaining.");
+            }
+            else if (hero.Health <= 0)
+            {
+                Console.WriteLine("You lost! Your health reached 0.");
+                exploration.DisplayVisitedRooms();
+            }
         }
     }
 }

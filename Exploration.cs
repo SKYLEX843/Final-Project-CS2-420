@@ -1,42 +1,30 @@
-using System;
-using System.Collections.Generic;
-
-public class Exploration
+namespace HeroQuestGame
 {
-    private Stack<int> VisitedRooms = new Stack<int>();
-    private Dictionary<int, string> RoomData = new Dictionary<int, string>(); // Room to challenge mapping
-
-    public void VisitRoom(int roomId, string challenge)
+    public class Exploration
     {
-        VisitedRooms.Push(roomId);
-        RoomData[roomId] = challenge;
-        Console.WriteLine($"Entered Room {roomId}: Challenge - {challenge}");
-    }
+        private Stack<int> VisitedRooms = new Stack<int>();
+        private Stack<string> Treasures = new Stack<string>();
+        private Dictionary<int, string> RoomChallenges = new Dictionary<int, string>();
 
-    public void Backtrack()
-    {
-        if (VisitedRooms.Count > 0)
+        public void VisitRoom(int roomId, string challenge)
         {
-            int lastRoom = VisitedRooms.Pop();
-            Console.WriteLine($"Backtracked from Room {lastRoom}");
-        }
-        else
-        {
-            Console.WriteLine("No rooms to backtrack from!");
-        }
-    }
+            VisitedRooms.Push(roomId);
+            RoomChallenges[roomId] = challenge;
+            Console.WriteLine($"Entered Room {roomId}: Challenge - {challenge}");
 
-    public void DisplayVisitedRooms()
-    {
-        Console.WriteLine("Visited Rooms: " + string.Join(", ", VisitedRooms));
-    }
-
-    public string GetChallenge(int roomId)
-    {
-        if (RoomData.TryGetValue(roomId, out string challenge))
-        {
-            return challenge;
+            // Treasure system (10% chance)
+            Random random = new Random();
+            if (random.Next(1, 101) <= 10)
+            {
+                string treasure = random.Next(0, 2) == 0 ? "Gold" : "Gem";
+                Treasures.Push(treasure);
+                Console.WriteLine($"You found a treasure: {treasure}");
+            }
         }
-        return "No challenge found!";
+
+        public void DisplayVisitedRooms()
+        {
+            Console.WriteLine("Visited Rooms: " + string.Join(", ", VisitedRooms));
+        }
     }
 }
