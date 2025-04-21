@@ -17,7 +17,6 @@ namespace HeroQuestGame
             Agility = agility;
             Intelligence = intelligence;
 
-            // Add initial items
             AddItem("Sword");
             AddItem("Health Potion");
         }
