@@ -1,47 +1,89 @@
-using System;
-using System.Collections.Generic;
-namespace HeroQuestGame
-{
-    public class Hero
+
+    using System;
+    using System.Collections.Generic;
+
+    namespace HeroQuestGame
     {
-        public int Strength { get; set; }
-        public int Agility { get; set; }
-        public int Intelligence { get; set; }
-        public int Health { get; set; } = 20;
-
-        private Queue<string> Inventory = new Queue<string>();
-
-        public Hero(int strength, int agility, int intelligence)
+        class Hero
         {
-            Strength = strength;
-            Agility = agility;
-            Intelligence = intelligence;
+            public int Strength { get; set; }
+            public int Agility { get; set; }
+            public int Intelligence { get; set; }
+            public int Health { get; set; } = 20;
+            public Queue<string> Inventory { get; private set; } = new Queue<string>();
 
-            AddItem("Sword");
-            AddItem("Health Potion");
-        }
-
-        public void AddItem(string item)
-        {
-            if (this.Inventory.Count >= 5)
+            public Hero()
             {
-                Console.WriteLine($"Inventory full! Removing {Inventory.Dequeue()} to add {item}.");
+                Strength = 5;
+                Agility = 5;
+                Intelligence = 5;
+                Inventory.Enqueue("Sword");
+                Inventory.Enqueue("Health Potion");
             }
-            Inventory.Enqueue(item);
-        }
 
-        public void ShowInventory()
-        {
-            Console.WriteLine("Inventory: " + string.Join(", ", Inventory));
-        }
-
-        public void UseHealthPotion()
-        {
-            if (Inventory.Contains("Health Potion"))
+            public void AddItem(string item)
             {
-                Health += 10;
-                Console.WriteLine("Used Health Potion. Health is now: " + Health);
+                if (Inventory.Count >= 5) Inventory.Dequeue();
+                Inventory.Enqueue(item);
+            }
+
+            public bool FaceChallenge(string challengeType, int difficulty)
+            {
+                int heroStat = 0;
+                switch (challengeType.ToLower())
+                {
+                    case "combat":
+                        heroStat = Strength;
+                        break;
+                    case "trap":
+                        heroStat = Agility;
+                        break;
+                    case "puzzle":
+                        heroStat = Intelligence;
+                        break;
+                    default:
+                        Console.WriteLine("Unknown challenge type.");
+                        return false;
+                }
+
+                if (heroStat >= difficulty)
+                {
+                    Console.WriteLine($"You successfully overcame the {challengeType} challenge!");
+                    return true;
+                }
+                else
+                {
+                    int damage = difficulty - heroStat;
+                    Health -= Math.Max(damage, 0); 
+                    Console.WriteLine($"Challenge failed! You lost {damage} health.");
+                    return false;
+                }
+            }
+            public void UseHealthPotion()
+            {
+                if (Inventory.Contains("Health Potion"))
+                {
+                    Inventory.Dequeue(); 
+                    Health = Math.Min(Health + 10, 20); 
+                    Console.WriteLine("You used a Health Potion! Your health is now " + Health);
+                }
+                else
+                {
+                    Console.WriteLine("You don't have a Health Potion to use.");
+                }
+            }
+            public void UseStrengthBoost()
+            {
+                if (Inventory.Contains("Strength Boost"))
+                {
+                    Inventory = new Queue<string>(Inventory.Where(item => item != "Strength Boost"));
+                    Strength += 2; 
+                    Console.WriteLine("You used a Strength Boost! Strength increased to " + Strength);
+                }
+                else
+                {
+                    Console.WriteLine("You don't have a Strength Boost to use.");
+                }
             }
         }
     }
-}

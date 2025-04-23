@@ -1,40 +1,16 @@
 namespace HeroQuestGame
 {
-    public class Room
+    class RoomGraph
     {
-        public int Id { get; set; }
-        public List<int> Neighbors { get; set; } = new List<int>();
-        public int Challenge { get; set; }
-        public Room(int id, int challenge)
+        public Dictionary<int, List<int>> AdjacencyList { get; private set; } = new Dictionary<int, List<int>>();
+
+        public void AddEdge(int room1, int room2)
         {
-            Id = id;
-            Challenge = challenge;
+            if (!AdjacencyList.ContainsKey(room1)) AdjacencyList[room1] = new List<int>();
+            if (!AdjacencyList.ContainsKey(room2)) AdjacencyList[room2] = new List<int>();
+
+            AdjacencyList[room1].Add(room2);
+            AdjacencyList[room2].Add(room1);
         }
-    }
-
-    public class Map
-    {
-        private Dictionary<int, Room> Rooms = new Dictionary<int, Room>();
-
-        public void AddRoom(int id, int challenge)
-        {
-            Rooms[id] = new Room(id, challenge);
-        }
-
-        public void AddPath(int from, int to)
-        {
-            Rooms[from].Neighbors.Add(to);
-            Rooms[to].Neighbors.Add(from);
-        }
-
-        public void DisplayMap()
-        {
-            foreach (var room in Rooms.Values)
-            {
-                Console.WriteLine($"Room {room.Id} (Challenge {room.Challenge}): Connected to {string.Join(", ", room.Neighbors)}");
-            }
-        }
-
-        public Room GetRoom(int id) => Rooms.ContainsKey(id) ? Rooms[id] : null;
     }
 }

@@ -1,61 +1,93 @@
-﻿using System;
-
-namespace HeroQuestGame
+﻿namespace HeroQuestGame
 {
-    class Program
+    class Game
     {
         static void Main()
         {
-            Console.WriteLine("Welcome to Hero's Quest!");
-
-            Hero hero = new Hero(10, 8, 9);
-
-            Map map = new Map();
-            Exploration exploration = new Exploration();
-            ChallengeTree bst = new ChallengeTree();
+            Hero hero = new Hero();
+            RoomGraph map = new RoomGraph();
+            ChallengeBST challenges = new ChallengeBST();
 
             for (int i = 1; i <= 15; i++)
-            {
-                int difficulty = new Random().Next(1, 21);
-                map.AddRoom(i, difficulty);
-                bst.AddChallenge(difficulty);
-            }
+                map.AddEdge(i, i + 1); 
 
-            for (int i = 1; i < 15; i++)
-            {
-                map.AddPath(i, i + 1);
-            }
+            challenges.Insert(new Challenge { Difficulty = 3, Type = "Combat" });
+            challenges.Insert(new Challenge { Difficulty = 7, Type = "Trap" });
+            challenges.Insert(new Challenge { Difficulty = 12, Type = "Puzzle" });
+            challenges.Insert(new Challenge { Difficulty = 15, Type = "Combat" });
+
+            Stack<int> visitedRooms = new Stack<int>();
+            Dictionary<int, Challenge> roomChallenges = new Dictionary<int, Challenge>();
 
             int currentRoom = 1;
-            int exitRoom = 15;
+            Console.WriteLine("Welcome to the Adventure Game!");
+            Console.WriteLine("Navigate using 'N' (Next Room), 'H' (Use Health Potion), 'S' (Use Strength Boost), or 'E' (Exit Game).");
 
-            while (currentRoom != exitRoom && hero.Health > 0)
+            while (currentRoom != 15 && hero.Health > 0)
             {
-                Room room = map.GetRoom(currentRoom);
-                int closestChallenge = bst.FindClosest(room.Challenge);
-                Console.WriteLine($"Facing challenge difficulty {closestChallenge}...");
+                Console.WriteLine($"\nYou are in Room {currentRoom}. Health: {hero.Health}");
+                Console.WriteLine("Inventory: " + string.Join(", ", hero.Inventory));
 
-                if (hero.Strength >= closestChallenge)
+                Console.WriteLine("Enter command ('N' to move forward, 'H' to use health potion, 'S' to use strength boost, 'E' to exit): ");
+                string command = Console.ReadLine().ToUpper();
+                if (command == "E") break;
+                if (command == "H") 
                 {
-                    Console.WriteLine("Challenge passed!");
+                    hero.UseHealthPotion();
+                    continue; 
                 }
-                else
+                if (command == "S")
                 {
-                    int damage = closestChallenge - hero.Strength;
-                    hero.Health -= damage;
-                    Console.WriteLine($"Challenge failed! Lost {damage} health. Remaining Health: {hero.Health}");
+                    hero.UseStrengthBoost();
+                    continue; 
                 }
 
-                exploration.VisitRoom(currentRoom, $"Difficulty {closestChallenge}");
-                currentRoom++;
+                if (command == "N")
+                {
+                    visitedRooms.Push(currentRoom);
+                    Challenge challenge = challenges.FindClosest(currentRoom);
+                    roomChallenges[currentRoom] = challenge;
+
+                    Console.WriteLine($"Room {currentRoom}: Facing {challenge.Type} (Difficulty: {challenge.Difficulty})");
+                    Console.WriteLine($"Do you want to attempt the challenge? (Y/N)");
+                    string attempt = Console.ReadLine().ToUpper();
+
+                    if (attempt == "Y")
+                    {
+                        bool success = hero.FaceChallenge(challenge.Type, challenge.Difficulty);
+
+                        if (!success)
+                        {
+                            Console.WriteLine($"Your health is now {hero.Health}");
+                            if (hero.Health <= 0)
+                            {
+                                Console.WriteLine("You have lost all your health. Game over!");
+                                break;
+                            }
+                        }
+                        else
+                        {
+
+                            Random rand = new Random();
+                            if (rand.Next(0, 100) < 30)
+                            {
+                                Console.WriteLine("You earned a Strength Boost!");
+                                hero.AddItem("Strength Boost");
+                            }
+                        }
+                    }
+
+                    currentRoom++;
+                }
             }
 
-            if (hero.Health > 0)
-                Console.WriteLine("You win! You reached the exit!");
+            if (hero.Health > 0 && currentRoom == 15)
+            {
+                Console.WriteLine("Congratulations! You reached the exit and won the game!");
+            }
             else
             {
-                Console.WriteLine("You lost! Health reached 0.");
-                exploration.DisplayVisitedRooms();
+                Console.WriteLine("Game over. You lost.");
             }
         }
     }
